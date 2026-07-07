@@ -60,10 +60,12 @@ inkrementalne + best-pair przez lazy-heap; parytet 1:1 z rdzeniem referencyjnym)
 
 1. **Vocab ↑ → fertility ↓ (monotonicznie, z saturacją).** 512→15k: zn/tok 1,78→3,25 (Tab. 1).
    Standardowa zależność; przy dużym vocab zyski maleją.
-2. **Skala korpusu jest ogromną dźwignią — do saturacji.** Nasz stary `fast` 15k (2,71 M literatury)
-   na held-oucie SpeakLeash = **2,388**; `fast-speakleash` 32k = **1,765** (−0,62 tok/słowo). Ale dalej
-   **saturuje**: 3 GB → 4,14 GB @64k → 1,632 → 1,630 (szum). Zgodne z „Diminishing Returns of
-   Tokenization Training Data" (arXiv 2502.20273). **Korpus > algorytm**, ale ma sufit.
+2. **Skala korpusu to duża dźwignia — i NIE jest wyczerpana.** Nasz stary `fast` 15k (2,71 M literatury)
+   na held-oucie SpeakLeash = **2,388**; `fast-speakleash` 32k = **1,765** (−0,62 tok/słowo). Krok
+   3 → 4,14 GB (+38%) nie ruszył fertility (1,632 → 1,630) — ale to **~50× za mało**, by mówić o saturacji:
+   „Diminishing Returns of Tokenization Training Data" (arXiv 2502.20273) stawia próg przy **~150 GB
+   (angielski) / ~200 GB (rosyjski — słowiański, jak polski)**. Przy 4 GB jesteśmy **daleko przed** progiem —
+   więcej danych powinno dalej obniżać fertility. **Skala danych = wciąż otwarta dźwignia, nie sufit.**
 3. **Pre-tok GPT-4 vs GPT-2 @32k:** fertility bez zmian (1,765 → 1,763), Rényi ↑ (0,451 → **0,473**).
    Lepsze traktowanie liczb/granic kategorii → **zdrowszy rozkład**, nie krótszy zapis.
 4. **fertility/Rényi są ślepe na morfologię** (nasz pomiar + literatura): formy fleksyjne jednego lematu

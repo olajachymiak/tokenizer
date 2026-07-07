@@ -1,37 +1,34 @@
-# Arek — fast BPE (korpus SpeakLeash ~3 GB)
+# Arek — fast BPE (korpus SpeakLeash ~3–4 GB)
 
-Byte-level BPE (ten sam wariant `fast` co `../fast/`, ten sam pre-tokenizer),
-ale trenowany na **~3 GB czystego SpeakLeash** (`speakleash-tokenizer-5gb-sample`,
-shardy 0001–0003, streamowane) zamiast literatury (2,71 M zn.). Cel: pomiar
-**dźwigni korpusu** na held-oucie SpeakLeash (nitka `Optymalizacja-Tokenizer`).
+Byte-level BPE (wariant `fast`, ten sam pre-tokenizer co `../fast/`), trenowany na
+**czystym SpeakLeash** (`speakleash-tokenizer-5gb-sample`, shardy streamowane) zamiast
+literatury (2,71 M zn.). Cel: pomiar **dźwigni korpusu** na held-oucie SpeakLeash.
+Pełna empiria, metodyka i cytaty: **`../README.md`**.
 
-- Alfabet bazowy: 256 bajtów, zero `<UNK>`, round-trip lossless.
+- Alfabet 256 bajtów, zero `<UNK>`, round-trip lossless.
 - Pre-tok: `" ?[^\W\d]+| ?\d+| ?[^\s\w]+|\s+"` (GPT-2-style; cyfry jako pełne runy).
-- Trening: liczniki inkrementalne + **selekcja best-pair przez kopiec (lazy-heap)**,
-  z parytetem 1:1 vs rdzeń referencyjny — skala do 3 GB (32k: ~236 s, 64k: ~223 s).
-- `min_freq=3` (prune rzadkich typów; parametr).
+- Trening: liczniki inkrementalne + best-pair przez lazy-heap (parytet 1:1 z rdzeniem referencyjnym).
+- `min_freq=3`.
 
 ## Pliki
 | plik | vocab | uwaga |
 |---|---|---|
 | `32000.json` | 32 000 | format klasy (`model.vocab` + `model.merges`) |
-| `64000.json` | 64 000 | jw. |
+| `64000.json` | 64 000 | trening 4,14 GB |
 
 ## Metryki (held-out = shard 0005, ROZŁĄCZNY z treningiem; fertility = tok/słowo, ↓ lepiej)
-| vocab | fertility | zn/tok | Rényi (α=2,5) | round-trip | ref. Slayer |
-|---|---|---|---|---|---|
-| 32 000 | **1,765** | 4,03 | 0,451 | ✅ | 1,771 |
-| 64 000 | 1,632 | 4,36 | 0,412 | ✅ | 1,607 |
+| vocab | zn/tok | fertility | Rényi (α=2,5) | round-trip |
+|---|---|---|---|---|
+| 32 000 | 4,03 | 1,765 | 0,451 | ✅ |
+| 64 000 | 4,37 | 1,630 | 0,412 | ✅ |
 
-Dla porównania: nasz stary `fast` 15k (literatura 2,71 M) na held-oucie SpeakLeash = **2,388**.
-Dźwignia korpusu: −0,62 tok/słowo (32k). Przy matched vocab jesteśmy **łeb w łeb** ze Slayerem
-(32k: −0,006 my; 64k: +0,025 oni), ten sam pipeline → różnica w granicach szumu.
+Dźwignia korpusu: nasz stary `fast` 15k (literatura 2,71 M) na tym held-oucie = **2,388** → `32k` = **1,765**
+(−0,62 tok/słowo). Krok 3 → 4,14 GB nie ruszył fertility, ale to **za mały krok** by wnioskować o saturacji
+(literatura: próg ~150–200 GB — patrz `../README.md`). Więcej danych = wciąż otwarta dźwignia.
 
-**Uczciwie (apple-to-apple):** to NASZ held-out z tej samej dystrybucji i NASZA
-definicja słowa (`[^\W\d_]+`) — nie dokładny held-out/def. Slayera. Liczby pokazują
-**magnitudę dźwigni korpusu**; czysty 1:1 ze Slayerem wymaga jego held-outu/protokołu.
-α w Rényim ustawiamy wg **jego metryki dla porównywalności — nie stroimy α pod wynik** (to byłby Goodhart).
+**Uczciwie (F2):** to NASZ held-out z tej samej dystrybucji i NASZA definicja słowa (`[^\W\d_]+`).
+Liczby pokazują **magnitudę dźwigni korpusu**; porównania absolutne z innym tokenizerem wymagają
+**wspólnego** held-outu/protokołu. α w Rényim = konwencja (nie strojona pod wynik — Goodhart).
 
 ## Wczytanie
-Jak w `../README.md`: `model.vocab` (repr `bytes_to_unicode` → id) + `model.merges`
-(lista `"lewy prawy"` w kolejności uczenia).
+Jak w `../README.md` (`model.vocab` repr → id + `model.merges` w kolejności uczenia).
