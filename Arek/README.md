@@ -78,6 +78,41 @@ inkrementalne + best-pair przez lazy-heap; parytet 1:1 z rdzeniem referencyjnym)
    **zysk maleje przy dużym vocab**, a dopasowanie morfologiczne **słabo koreluje z wydajnością modelu**
    (arXiv 2507.06378). Morfem-**pre**-segmentacja wspiera BPE downstream (MorphBPE 2502.00894) — kierunek otwarty.
 
+## Fleksja pod mikroskopem — tokeny vs metryka (dowód punktu 4)
+
+Realny podział na tokeny naszym `fast-speakleash/64000` (zweryfikowany 1:1 z encoderem
+treningowym; słowa w izolacji, bez wiodącej spacji). Pokazuje **wprost**, czemu parytet
+fertility ≠ jakość morfologiczna.
+
+**(a) Jeden lemat, różne przypadki → różny podział, brak wspólnego rdzenia:**
+
+| forma (przypadek) | tokeny (64k) | # |
+|---|---|---|
+| odpowiedzialność (M) | `odpowie · dzialność` | 2 |
+| odpowiedzialności (D) | `odpowie · dzia · lności` | 3 |
+| odpowiedzialnością (N) | `odpowie · dzia · lnością` | 3 |
+| odpowiedzialnościom (C. mn) | `odpowie · dzia · lności · om` | 4 |
+
+Rdzeń `odpowiedzialn-` **nie jest** wspólnym tokenem; mianownik dzieli się inaczej (`dzialność`)
+niż reszta (`dzia · lności`). Token nie „wie", że to jeden wyraz.
+
+**(b) Wspólny morfem `-ość` w różnych lematach → różne, niezwiązane fragmenty:**
+
+| słowo | tokeny (64k) | `-ość` ląduje jako |
+|---|---|---|
+| wolność | `wo · lność` | `lność` |
+| radość | `ra · dość` | `dość` |
+| ciekawość | `cieka · wość` | `wość` |
+| niepełnosprawność | `nie · pełnospraw · ność` | `ność` |
+| odpowiedzialność | `odpowie · dzialność` | `dzialność` |
+
+Ten sam morfem `-ość` **nie ma jednego tokenu** — rozłazi się na `lność / dość / wość / ność / dzialność`.
+Dowód „rozbitego paradygmatu" wprost w vocab (cl100k jeszcze gorszy: `od·pow·ied·zial·ność` = 5 tok.).
+
+**Wynik obok:** mimo tego rozbicia `64000` osiąga **fertility 1,630** (Tab. 2) — parytet z referencją ~1,607.
+Czyli **metryka mówi „parytet", a paradygmat fleksyjny jest rozbity.** Fertility/Rényi tego nie widzą.
+Reprodukcja: encoderem ze snippetu „Format i wczytywanie" (`64000.json`).
+
 ## Uczciwe zastrzeżenia
 
 - **Held-out i definicja słowa są nasze** (`[^\W\d_]+`, ta sama dystrybucja). Liczby pokazują
