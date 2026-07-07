@@ -67,7 +67,8 @@ korpusie `SlayerLab/polish-dynaword` (do 17 GB) — patrz „Skala danych i dyst
 3. **Skala danych: nasycona JUŻ przy ~3 GB (przy stałym vocab).** Zmierzone na dynaword (2,84→17 GB, 6×):
    fertility **płaski**. Więcej danych **nie** obniża fertility przy fixed vocab — ogranicza je **rozmiar
    słownika**, nie wolumen. Dźwignie: **vocab + pre-tok**, nie ilość danych. *(„Diminishing Returns…"
-   arXiv 2502.20273 ~150–200 GB dotyczy jakości/pokrycia, NIE fertility przy stałym vocab.)* Szczegóły niżej.
+   arXiv 2502.20273 mierzy jakość tokenizera vs rozmiar danych przy **zmiennym** vocab (EN ~150 GB, RU ~200 GB;
+   saturacja przez pre-tokenizację); nasz setup ze **stałym vocab 64k** nasyca się dużo wcześniej (~3 GB).)* Szczegóły niżej.
 4. **Dystrybucja dominuje nad ilością** (niżej, 2×2): dopasowanie train↔test > wolumen danych.
 5. **fertility/Rényi są ślepe na morfologię** (nasz pomiar + literatura): formy fleksyjne jednego lematu
    wchodzą jako **osobne atomy**, wspólny morfem (`-ość`) nie ma wspólnego tokenu. Patrz „Fleksja pod mikroskopem".
